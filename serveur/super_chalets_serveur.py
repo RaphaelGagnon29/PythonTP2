@@ -1,6 +1,7 @@
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+
 class SuperChalet:
 
     def __init__(self):
@@ -51,6 +52,19 @@ class TPBaseHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
             except ValueError:
                 self.send_response(542, 'Utilisateur existant')
+            self.end_headers()
+
+    def do_GET(self):
+        headers = self.headers
+        path = self.path
+        if path.startswith('/chalet/'):
+            chalet = path.split('/')[1]
+            content = self.super_chalet.chalet[chalet]
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(bytes(content, 'utf-8'))
+        else:
+            self.send_response(542, 'chalet non trouve')
             self.end_headers()
 
 
