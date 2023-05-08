@@ -31,4 +31,7 @@ class ClientServeur:
         print(req.content)
 
 
+session = requests.Session()
+session.trust_env = False
+session.get('http://localhost:8000')
 client = ClientServeur('http://localhost:8000')

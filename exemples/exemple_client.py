@@ -26,6 +26,9 @@ class ClientServeurZoo:
         print(req.content)
 
 
+session = requests.Session()
+session.trust_env = False
+session.get('http://localhost:8000')
 client = ClientServeurZoo('http://localhost:8000')
 client.ajout_enclos('laurentien')
 client.ajout_enclos('antarctic')
