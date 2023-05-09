@@ -26,6 +26,11 @@ class SuperChalet:
             raise ValueError('Chalet existant')
         self.__chalet[chalet] = []
 
+    def ajout_disponibilites_chalet(self, chaletid, dispo):
+        if chaletid not in self.__chalet.keys():
+            raise ValueError('Chalet inexistant')
+        self.__chalet[chaletid].append(dispo)
+
 
 class TPBaseHTTPRequestHandler(BaseHTTPRequestHandler):
 
@@ -53,12 +58,21 @@ class TPBaseHTTPRequestHandler(BaseHTTPRequestHandler):
             except ValueError:
                 self.send_response(542, 'Utilisateur existant')
             self.end_headers()
+        elif path.startswith('/chalet/'):
+            chaletid = path.split('/')[2]
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+            json_str = json.loads(body)
+            self.super_chalet.ajout_disponibilites_chalet(chaletid, json_str['disponibilite'])
+            self.send_response(200)
+            self.end_headers()
+
 
     def do_GET(self):
         headers = self.headers
         path = self.path
         if path.startswith('/chalet/'):
-            chalet = path.split('/')[1]
+            chalet = path.split('/')[2]
             content = self.super_chalet.chalet[chalet]
             self.send_response(200)
             self.end_headers()

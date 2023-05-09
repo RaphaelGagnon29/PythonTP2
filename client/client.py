@@ -8,7 +8,7 @@ class ClientServeur:
         self.__post_headers = {'Content-Type': 'text/json'}
 
     def ajout_chalet(self, chalet):
-        json_body = '{"nom": "' + chalet + '" }'
+        json_body = chalet
         req = requests.post(self.__url_base + '/chalet', data=json_body)
         print(req.status_code)
         print(req.content)
@@ -19,13 +19,13 @@ class ClientServeur:
         print(req.content)
 
     def ajout_disponibilites_chalet(self, chaletid, dispo):
-        json_body = '{"nom": "' + dispo + '" }'
+        json_body = dispo
         req = requests.post(self.__url_base + '/chalet/' + chaletid + '/plage', data=json_body)
         print(req.status_code)
         print(req.content)
 
     def ajout_utilisateur(self, utilisateur):
-        json_body = '{"nom": "' + utilisateur + '" }'
+        json_body = utilisateur
         req = requests.post(self.__url_base + '/utilisateur', data=json_body)
         print(req.status_code)
         print(req.content)
