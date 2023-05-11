@@ -1,7 +1,7 @@
 import requests
 
 
-class ClientServeur:
+class ClientServeurChalet:
 
     def __init__(self, url_base):
         self.__url_base = url_base
@@ -34,4 +34,4 @@ class ClientServeur:
 session = requests.Session()
 session.trust_env = False
 session.get('http://localhost:8000')
-client = ClientServeur('http://localhost:8000')
+client = ClientServeurChalet('http://localhost:8000')
