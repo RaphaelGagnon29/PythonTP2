@@ -4,6 +4,7 @@ from xml.dom import minidom
 import time
 import json
 
+
 class Utilisateur:
 
     def __init__(self, email, mdp, nom, prenom, type, adresse_no, adresse_rue, adresse_ville, adresse_prov,
@@ -54,6 +55,19 @@ class Chalet:
                                                            "longitude": self.__geo_long}}})
 
 
+class Reservation:
+
+    def __init__(self, id, chalet, utilisateur, plage):
+        self.__id = id
+        self.__chalet = chalet
+        self.__utilisateur = utilisateur
+        self.__plage = plage
+
+    def xml_to_json(self):
+        return json.dumps({"reservation": {"id": self.__id, "chalet": self.__chalet, "plages": self.__plage,
+                                           "utilisateur": self.__utilisateur}})
+
+
 liste_utilisateurs_json = []
 with open('./data/utilisateurs.csv', 'r') as csv_utilisateurs:
     csv_reader = csv.reader(csv_utilisateurs)
@@ -86,3 +100,21 @@ for j in liste_chalets_json:
 
 for x in liste_utilisateurs_json:
     Utilisateur.export_csv(x)
+
+
+with open('./data/reservations.xml', 'r') as xml_file:
+    doc = minidom.parse(xml_file)
+
+liste_reservations = []
+elements = doc.getElementsByTagName('reservation')
+for element in elements:
+    liste_plage = []
+    id = element.getAttribute('id')
+    chalet = element.getElementsByTagName('chalet')[0].firstChild.data
+    utilisateur = element.getElementsByTagName('utilisateur')[0].firstChild.data
+    plages = element.getElementsByTagName('plage')
+    for plage in plages:
+        p = plage.firstChild.data
+        liste_plage.append(p)
+    liste_reservations.append([id, chalet, utilisateur, liste_plage])
+
