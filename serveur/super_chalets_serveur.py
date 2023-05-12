@@ -17,6 +17,13 @@ class SuperChalet:
     @property
     def utilisateur(self):
         return self.__utilisateur
+    @property
+    def reservation(self):
+        return self.__reservation
+
+    @property
+    def reservations(self):
+        return self.__reservations
 
     def ajout_utilisateur(self, utilisateur):
         if utilisateur in self.__chalet.keys():

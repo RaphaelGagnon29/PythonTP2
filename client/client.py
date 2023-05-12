@@ -1,5 +1,5 @@
 import requests
-
+import unittest as ut
 
 class ClientServeurChalet:
 
@@ -49,6 +49,8 @@ class ClientServeurChalet:
 #retourner la liste triée des réservations selon leur reservationID (numéro 7 client)
     def retourne_reservations(self):
         req = requests.get(self.__url_base + '/reservations')
+        print(req.status_code)
+        print(req.content)
 
 #ajouter un chalet ( numéro 8 client)
     def ajout_chalet(self, chalet):
@@ -70,8 +72,13 @@ class ClientServeurChalet:
         print(req.status_code)
         print(req.content)
 
+class TestReservation(ut.TestCase):
+
+    def test_retourne_reservation(self):
 
 
+if __name__ == '__main__':
+    ut.main()
 session = requests.Session()
 session.trust_env = False
 session.get('http://localhost:8000')
