@@ -49,19 +49,9 @@ class Chalet:
         self.__geo_long = geo_long
 
     def csv_en_json(self):
-        return {
-            "chalet":
-                {
-                    "id": self.__id,
-                    "nom": self.__nom,
-                    "url_image": self.__url_image,
-                    "geolocalisation":
-                        {
-                            "latitude": self.__geo_lat,
-                            "longitude": self.__geo_long
-                        }
-                }
-            }
+        return json.dumps({"chalet": {"id": self.__id, "nom": self.__nom, "url_image": self.__url_image,
+                                      "geolocalisation": {"latitude": self.__geo_lat,
+                                                           "longitude": self.__geo_long}}})
 
 
 liste_utilisateurs_json = []
@@ -74,7 +64,7 @@ with open('./data/utilisateurs.csv', 'r') as csv_utilisateurs:
             objet = Utilisateur(utilisateur[0], utilisateur[1], utilisateur[2], utilisateur[3], utilisateur[4],
                                 utilisateur[5], utilisateur[6], utilisateur[7], utilisateur[8], utilisateur[9],
                                 utilisateur[10])
-            liste_utilisateurs_json.append(objet.csv_en_json())
+            liste_utilisateurs_json.append(objet.csv_to_json())
 
 for i in liste_utilisateurs_json:
     client.ClientServeurChalet('http://localhost:8000').ajout_utilisateur(i)
