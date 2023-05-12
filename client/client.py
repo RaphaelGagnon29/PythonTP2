@@ -18,18 +18,18 @@ class ClientServeurChalet:
         print(req.content)
 
     def ajout_reservation(self, reservation):
-        json_body = reservation
+        json_body = '{"reservation": "' + reservation + '" }'
         req = requests.post(self.__url_base + '/reservation/', data=json_body)
         print(req.status_code)
         print(req.content)
 
     def modifier_reservation(self, reservation):
-        json_body = reservation
+        json_body = '{"reservation": "' + reservation + '" }'
         req = requests.put(self.__url_base + '/reservation/', data=json_body)
         print(req.status_code)
         print(req.content)
     def ajout_chalet(self, chalet):
-        json_body = chalet
+        json_body = '{"chalet": "' + chalet + '" }'
         req = requests.post(self.__url_base + '/chalet', data=json_body)
         print(req.status_code)
         print(req.content)
@@ -40,13 +40,13 @@ class ClientServeurChalet:
         print(req.content)
 
     def ajout_disponibilites_chalet(self, chaletid, dispo):
-        json_body = dispo
+        json_body = '{"disponiblité": "' + dispo + '" }'
         req = requests.post(self.__url_base + '/chalet/' + chaletid + '/plage', data=json_body)
         print(req.status_code)
         print(req.content)
 
     def ajout_utilisateur(self, utilisateur):
-        json_body = utilisateur
+        json_body = '{"utilisateur": "' + utilisateur + '" }'
         req = requests.post(self.__url_base + '/utilisateur', data=json_body)
         print(req.status_code)
         print(req.content)
