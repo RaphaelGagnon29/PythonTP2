@@ -7,6 +7,8 @@ class SuperChalet:
     def __init__(self):
         self.__chalet = {}
         self.__utilisateur = {}
+        self.__reservation = {}
+        self.__reservations = {}
 
     @property
     def chalet(self):
