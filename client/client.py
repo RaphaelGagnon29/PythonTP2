@@ -1,8 +1,8 @@
 import requests
 import unittest as ut
 
+#Cette classe permet de faire les demandes de manipulation des données qui seront envoyés au serveur
 class ClientServeurChalet:
-
     def __init__(self, url_base):
         self.__url_base = url_base
         self.__post_headers = {'Content-Type': 'text/json'}
@@ -72,13 +72,14 @@ class ClientServeurChalet:
         print(req.status_code)
         print(req.content)
 
-class TestReservation(ut.TestCase):
+#cette classe permet d'effectuer les tests unitaires sur tout ce qui touche /reservation/
+#class TestReservation(ut.TestCase):
 
-    def test_retourne_reservation(self):
+ #   def test_retourne_reservation(self):
 
 
-if __name__ == '__main__':
-    ut.main()
+#if __name__ == '__main__':
+#   ut.main()
 session = requests.Session()
 session.trust_env = False
 session.get('http://localhost:8000')
