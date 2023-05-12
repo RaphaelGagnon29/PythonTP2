@@ -9,13 +9,13 @@ class ClientServeurChalet:
 
 #retourner la réservation selon le reservationID. (numéro 1 client)
     def retourne_reservation(self, reservationid):
-        req = requests.get(self.__url_base + '/reservation/' + reservationid)
+        req = requests.get(self.__url_base + f'/reservation/{reservationid}')
         print(req.status_code)
         print(req.content)
 
 #retourner toutes les réservations d'un utilisateur (numéro 2 client)
     def retourne_reservations_utilisateur(self, utilisateur):
-        req = requests.get(self.__url_base + '/reservations/' + utilisateur)
+        req = requests.get(self.__url_base + f'/reservations/{utilisateur}')
         print(req.status_code)
         print(req.content)
 
@@ -27,15 +27,15 @@ class ClientServeurChalet:
         print(req.content)
 
 #remplacer une réservation existante ( numéro 4 client)
-    def remplacer_reservation(self, reservation):
-        json_body = '{"reservation": "' + reservation + '" }'
-        req = requests.put(self.__url_base + '/reservation/', data=json_body)
+    def remplacer_reservation(self, reservationid):
+        json_body = '{"reservation": "' + reservationid + '" }'
+        req = requests.put(self.__url_base + f'/reservation/', data=json_body)
         print(req.status_code)
         print(req.content)
 
 #supprimer une réservation ( numéro 5 client)
-    def supprimer_reservation(self, reservation):
-        req = requests.delete(self.__url_base + '/reservations/' + reservation)
+    def supprimer_reservation(self, reservationid):
+        req = requests.delete(self.__url_base + f'/reservations/{reservationid}')
         print(req.status_code)
         print(req.content)
 
@@ -59,14 +59,14 @@ class ClientServeurChalet:
 
 #retourner les informations d'un chalet ( numéro 9 client)
     def retourne_chalet(self, chaletid):
-        req = requests.get(self.__url_base + '/chalet/' + chaletid)
+        req = requests.get(self.__url_base + f'/chalet/{chaletid}')
         print(req.status_code)
         print(req.content)
 
 #créer une disponibilité pour le chalet (numéro 10 client)
     def ajout_disponibilites_chalet(self, chaletid, dispo):
         json_body = '{"disponiblité": "' + dispo + '" }'
-        req = requests.post(self.__url_base + '/chalet/' + chaletid + '/plage', data=json_body)
+        req = requests.post(self.__url_base + f'/chalet/{chaletid}/plage', data=json_body)
         print(req.status_code)
         print(req.content)
 
