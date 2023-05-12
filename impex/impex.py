@@ -5,6 +5,8 @@ import time
 import json
 
 
+# Classe permettant d'instancier les utilisateurs qui seront envoyés vers le serveur avec un constructeur
+# qui passe tous les attributs des utilisateurs dans utilisateurs.csv
 class Utilisateur:
 
     def __init__(self, email, mdp, nom, prenom, type, adresse_no, adresse_rue, adresse_ville, adresse_prov,
@@ -21,6 +23,7 @@ class Utilisateur:
         self.__adresse_pays = adresse_pays
         self.__adresse_cp = adresse_cp
 
+    # Méthode qui permet de convertir les utilisateurs venant du fichier utilisateurs.csv en format json
     def csv_to_json(self):
         return json.dumps({"utilisateur": {"email": self.__email, "mot_de_passe": self.__mdp, "nom": self.__nom,
                                            "prenom": self.__prenom, "type": self.__type,
@@ -28,6 +31,23 @@ class Utilisateur:
                                                        "ville": self.__adresse_ville, "province": self.__adresse_prov,
                                                        "pays": self.__adresse_pays, "code_postal": self.__adresse_cp}}})
 
+    # Méthode qui permet de lire le fichier utilisateurs.csv, puis, pour chaque ligne sauf la première,
+    # un objet Utilisateur est créé et est passé dans la méthode csv_to_json. Ensuite, tous ces objets se
+    # retrouve dans une liste: liste_utilisateurs_json, qui comprend tous les utilisateurs en format json
+    @staticmethod
+    def lecture_utilisateurs_csv(fichier):
+        liste_utilisateurs_json = []
+        with open(fichier, 'r') as csv_utilisateurs:
+            csv_reader = csv.reader(csv_utilisateurs)
+            for utilisateur in csv_reader:
+                if utilisateur[0] == 'email':
+                    continue
+                else:
+                    objet = Utilisateur(utilisateur[0], utilisateur[1], utilisateur[2], utilisateur[3], utilisateur[4],
+                                        utilisateur[5], utilisateur[6], utilisateur[7], utilisateur[8], utilisateur[9],
+                                        utilisateur[10])
+                    liste_utilisateurs_json.append(objet.csv_to_json())
+        return liste_utilisateurs_json
 
     @staticmethod
     def export_csv(utilisateur_json):
@@ -40,6 +60,8 @@ class Utilisateur:
             csv_dict_writer.writerow(utilisateur_json)
 
 
+# Classe permettant d'instancier les chalets qui seront envoyés vers le serveur avec un constructeur
+# qui passe tous les attributs des chalets dans chalets.csv
 class Chalet:
 
     def __init__(self, id, nom, url_image, geo_lat, geo_long):
@@ -49,12 +71,31 @@ class Chalet:
         self.__geo_lat = geo_lat
         self.__geo_long = geo_long
 
+    # Méthode qui permet de convertir les chalets venant du fichier chalets.csv en format json
     def csv_en_json(self):
         return json.dumps({"chalet": {"id": self.__id, "nom": self.__nom, "url_image": self.__url_image,
                                       "geolocalisation": {"latitude": self.__geo_lat,
                                                            "longitude": self.__geo_long}}})
 
+    # Méthode qui permet de lire le fichier chalets.csv, puis, pour chaque ligne sauf la première,
+    # un objet Chalet est créé et est passé dans la méthode csv_en_json. Ensuite, tous ces objets se
+    # retrouve dans une liste: liste_chalets_json, qui comprend tous les chalets en format json
+    @staticmethod
+    def lecture_chalets_csv(fichier):
+        liste_chalets_json = []
+        with open(fichier, 'r') as csv_chalets:
+            csv_reader = csv.reader(csv_chalets)
+            for chalet in csv_reader:
+                if chalet[0] == 'id':
+                    continue
+                else:
+                    objet = Chalet(chalet[0], chalet[1], chalet[2], chalet[3], chalet[4])
+                    liste_chalets_json.append(objet.csv_en_json())
+        return liste_chalets_json
 
+
+# Classe permettant d'instancier les réservations qui seront envoyées vers le serveur avec un constructeur
+# qui passe tous les attributs des réservations dans reservations.xml
 class Reservation:
 
     def __init__(self, id, chalet, utilisateur, plage):
@@ -63,58 +104,44 @@ class Reservation:
         self.__utilisateur = utilisateur
         self.__plage = plage
 
+    # Méthode qui permet de convertir les réservations venant de reservations.xml en format json
     def xml_to_json(self):
         return json.dumps({"reservation": {"id": self.__id, "chalet": self.__chalet, "plages": self.__plage,
                                            "utilisateur": self.__utilisateur}})
 
+    # Méthode qui permet de lire le fichier reservations.xml puis de séparer avec un minidom.
+    # Elle crée ensuite une liste comportant chaque réservations grâce aux attributs définis dans le fichier
+    @staticmethod
+    def lecture_reservations_xml(fichier):
+        with open(fichier, 'r') as xml_file:
+            doc = minidom.parse(xml_file)
 
-liste_utilisateurs_json = []
-with open('./data/utilisateurs.csv', 'r') as csv_utilisateurs:
-    csv_reader = csv.reader(csv_utilisateurs)
-    for utilisateur in csv_reader:
-        if utilisateur[0] == 'email':
-            continue
-        else:
-            objet = Utilisateur(utilisateur[0], utilisateur[1], utilisateur[2], utilisateur[3], utilisateur[4],
-                                utilisateur[5], utilisateur[6], utilisateur[7], utilisateur[8], utilisateur[9],
-                                utilisateur[10])
-            liste_utilisateurs_json.append(objet.csv_to_json())
-
-for i in liste_utilisateurs_json:
-    client.ClientServeurChalet('http://localhost:8000').ajout_utilisateur(i)
-
-
-liste_chalets_json = []
-with open('./data/chalets.csv', 'r') as csv_chalets:
-    csv_reader_ = csv.reader(csv_chalets)
-    for chalet in csv_reader_:
-        if chalet[0] == 'id':
-            continue
-        else:
-            objet_ = Chalet(chalet[0], chalet[1], chalet[2], chalet[3], chalet[4])
-            liste_chalets_json.append(objet_.csv_en_json())
-
-for j in liste_chalets_json:
-    client.ClientServeurChalet('http://localhost:8000').ajout_chalet(j)
+        liste_reservations = []
+        elements = doc.getElementsByTagName('reservation')
+        for element in elements:
+            liste_plage = []
+            id = element.getAttribute('id')
+            chalet = element.getElementsByTagName('chalet')[0].firstChild.data
+            utilisateur = element.getElementsByTagName('utilisateur')[0].firstChild.data
+            plages = element.getElementsByTagName('plage')
+            for plage in plages:
+                p = plage.firstChild.data
+                liste_plage.append(p)
+            liste_reservations.append([id, chalet, utilisateur, liste_plage])
+        return liste_reservations
 
 
-for x in liste_utilisateurs_json:
-    Utilisateur.export_csv(x)
+# Fonction qui prend les listes: liste_utilisateurs_json et liste_chalets_json
+# Chaque élément de ces listes sont envoyés vers le serveur grâce au client
+def executer():
+    for utilisateur_json in Utilisateur.lecture_utilisateurs_csv('./data/utilisateurs.csv'):
+        client.ClientServeurChalet('http://localhost:8000').ajout_utilisateur(utilisateur_json)
+
+    for chalet_json in Chalet.lecture_chalets_csv('./data/chalets.csv'):
+        client.ClientServeurChalet('http://localhost:8000').ajout_chalet(chalet_json)
+
+    for x in Utilisateur.lecture_utilisateurs_csv('./data/utilisateurs.csv'):
+        Utilisateur.export_csv(x)
 
 
-with open('./data/reservations.xml', 'r') as xml_file:
-    doc = minidom.parse(xml_file)
-
-liste_reservations = []
-elements = doc.getElementsByTagName('reservation')
-for element in elements:
-    liste_plage = []
-    id = element.getAttribute('id')
-    chalet = element.getElementsByTagName('chalet')[0].firstChild.data
-    utilisateur = element.getElementsByTagName('utilisateur')[0].firstChild.data
-    plages = element.getElementsByTagName('plage')
-    for plage in plages:
-        p = plage.firstChild.data
-        liste_plage.append(p)
-    liste_reservations.append([id, chalet, utilisateur, liste_plage])
-
+executer()
