@@ -1,3 +1,4 @@
+import client.client
 from client import client
 import csv
 from xml.dom import minidom
@@ -116,7 +117,7 @@ class Reservation:
         with open(fichier, 'r') as xml_file:
             doc = minidom.parse(xml_file)
 
-        liste_reservations = []
+        liste_reservations_json = []
         elements = doc.getElementsByTagName('reservation')
         for element in elements:
             liste_plage = []
@@ -127,21 +128,60 @@ class Reservation:
             for plage in plages:
                 p = plage.firstChild.data
                 liste_plage.append(p)
-            liste_reservations.append([id, chalet, utilisateur, liste_plage])
-        return liste_reservations
+            objet = Reservation(id, chalet, utilisateur, liste_plage)
+            liste_reservations_json.append(objet.xml_to_json())
+        return liste_reservations_json
 
 
-# Fonction qui prend les listes: liste_utilisateurs_json et liste_chalets_json
+# Classe permettant d'instancier les disponibilités qui seront envoyées vers le serveur avec un constructeur
+# qui passe tous les attributs des disponibilités dans disponibilites.xml
+class Disponibilite:
+
+    def __init__(self, chalet, plage):
+        self.__chalet = chalet
+        self.__plage = plage
+
+    # Méthode qui permet de convertir les disponibilités venant de disponibilites.xml en format json
+    def xml_en_json(self):
+        return json.dumps({'chalet': self.__chalet, 'plage': self.__plage})
+
+    # Méthode qui permet de lire le fichier disponibilites.xml puis de séparer avec un minidom.
+    # Elle crée ensuite une liste comportant chaque disponibilites grâce aux attributs définis dans le fichier
+    @staticmethod
+    def lecture_dispo_xml(fichier):
+        with open(fichier, 'r') as xml_file:
+            doc = minidom.parse(xml_file)
+
+        liste_dispo_json = []
+        elements = doc.getElementsByTagName('chalet')
+        for element in elements:
+            liste_plage = []
+            chalet = element.getAttribute('id')
+            plages = element.getElementsByTagName('plage')
+            for plage in plages:
+                p = plage.getAttribute('id')
+                liste_plage.append(p)
+            objet = Disponibilite(chalet, liste_plage)
+            liste_dispo_json.append(objet.xml_en_json())
+        return liste_dispo_json
+
+
+# Fonction qui prend les listes de contenu en json
 # Chaque élément de ces listes sont envoyés vers le serveur grâce au client
 def executer():
+    # Envoie de chaque utilisateur vers le serveur
     for utilisateur_json in Utilisateur.lecture_utilisateurs_csv('./data/utilisateurs.csv'):
         client.ClientServeurChalet('http://localhost:8000').ajout_utilisateur(utilisateur_json)
-
+    # Envoie de chaque chalet vers le serveur
     for chalet_json in Chalet.lecture_chalets_csv('./data/chalets.csv'):
         client.ClientServeurChalet('http://localhost:8000').ajout_chalet(chalet_json)
-
-    for x in Utilisateur.lecture_utilisateurs_csv('./data/utilisateurs.csv'):
-        Utilisateur.export_csv(x)
+    # Envoie de chaque reservation vers le serveur
+    for reservation_json in Reservation.lecture_reservations_xml('./data/reservations.xml'):
+        client.ClientServeurChalet('http://localhost:8000').ajout_reservation(reservation_json)
+    # Envoie de chaque disponibilite vers le serveur
+    for disponibilite_json in Disponibilite.lecture_dispo_xml('./data/disponibilites.xml'):
+        client.ClientServeurChalet('http://localhost:8000').ajout_disponibilites_chalet(json.loads(disponibilite_json)
+                                                                                        ['chalet'], disponibilite_json)
 
 
 executer()
