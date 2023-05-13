@@ -4,6 +4,8 @@ import csv
 from xml.dom import minidom
 import time
 import json
+import xml.etree.ElementTree as ET
+
 
 
 # Classe permettant d'instancier les utilisateurs qui seront envoyés vers le serveur avec un constructeur
@@ -55,9 +57,10 @@ class Utilisateur:
     @staticmethod
     def export_csv(utilisateur_json):
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        with open(f'./data/export_{timestamp}', 'w', newline='') as csv_file:
+        with open(f'./data/export_{timestamp}.csv', 'w', newline='') as csv_file:
             champs = ['email', 'mdp', 'nom', 'prenom', 'type', 'adresse_no', 'adresse_rue', 'adresse_ville',
                       'adresse_prov', 'adresse_pays', 'adresse_cp']
+            utilisateur_json = json.loads(utilisateur_json)['utilisateur']
             csv_dict_writer = csv.DictWriter(csv_file, fieldnames=champs)
             csv_dict_writer.writeheader()
             csv_dict_writer.writerow({'email': utilisateur_json['email'], 'mdp': utilisateur_json['mdp'],
@@ -141,6 +144,23 @@ class Reservation:
             liste_reservations_json.append(objet.xml_to_json())
         return liste_reservations_json
 
+    # Méthode qui prend en paramètre une réservation_json puis elle crée un fichie.xml avec la date
+    # comme nom
+    @staticmethod
+    def export_xml(resarvation_json):
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        root = ET.Element('reservations')
+        reservation = ET.SubElement(root, 'reservation')
+        reservation.attrib = {'id': json.loads(resarvation_json)['reservation']['id']}
+        chalet = ET.SubElement(reservation, 'chalet')
+        chalet.text = str(json.loads(resarvation_json)['reservation']['chalet'])
+        utilisateur = ET.SubElement(reservation, 'utilisateur')
+        utilisateur.text = str(json.loads(resarvation_json)['reservation']['utilisateur'])
+        plages = ET.SubElement(reservation, 'plages')
+        plages.text = str(json.loads(resarvation_json)['reservation']['plages'])
+        with open(f'./data/export_{timestamp}.xml', 'wb') as xml_file:
+            xml_file.write(ET.tostring(root))
+
 
 # Classe permettant d'instancier les disponibilités qui seront envoyées vers le serveur avec un constructeur
 # qui passe tous les attributs des disponibilités dans disponibilites.xml
@@ -185,9 +205,10 @@ def executer():
     # Envoie de chaque chalet vers le serveur
     for chalet_json in Chalet.lecture_chalets_csv('./data/chalets.csv'):
         client.ClientServeurChalet('http://localhost:8000').ajout_chalet(chalet_json)
-    # Envoie de chaque reservation vers le serveur
+    # Envoie de chaque reservation vers le serveur et dans la méthode pour exporter l'utilisateur en xml
     for reservation_json in Reservation.lecture_reservations_xml('./data/reservations.xml'):
         client.ClientServeurChalet('http://localhost:8000').ajout_reservation(reservation_json)
+        Reservation.export_xml(reservation_json)
     # Envoie de chaque disponibilite vers le serveur
     for disponibilite_json in Disponibilite.lecture_dispo_xml('./data/disponibilites.xml'):
         client.ClientServeurChalet('http://localhost:8000').ajout_disponibilites_chalet(json.loads(disponibilite_json)
