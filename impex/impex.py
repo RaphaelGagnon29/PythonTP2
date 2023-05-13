@@ -178,9 +178,10 @@ class Disponibilite:
 # Fonction qui prend les listes de contenu en json
 # Chaque élément de ces listes sont envoyés vers le serveur grâce au client
 def executer():
-    # Envoie de chaque utilisateur vers le serveur
+    # Envoie de chaque utilisateur vers le serveur et dans la méthode pour exporter l'utilisateur en csv
     for utilisateur_json in Utilisateur.lecture_utilisateurs_csv('./data/utilisateurs.csv'):
         client.ClientServeurChalet('http://localhost:8000').ajout_utilisateur(utilisateur_json)
+        Utilisateur.export_csv(utilisateur_json)
     # Envoie de chaque chalet vers le serveur
     for chalet_json in Chalet.lecture_chalets_csv('./data/chalets.csv'):
         client.ClientServeurChalet('http://localhost:8000').ajout_chalet(chalet_json)
