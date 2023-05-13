@@ -50,15 +50,24 @@ class Utilisateur:
                     liste_utilisateurs_json.append(objet.csv_to_json())
         return liste_utilisateurs_json
 
+    # Méthode qui permet de prendre un utilisateur en format json et de l'envoyer dans un nouveau fichier
+    # portant le nom de la date. Le fichier est de type csv
     @staticmethod
     def export_csv(utilisateur_json):
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        with open(f'./export_{timestamp}.csv', 'w', newline='') as csv_file:
+        with open(f'./data/export_{timestamp}', 'w', newline='') as csv_file:
             champs = ['email', 'mdp', 'nom', 'prenom', 'type', 'adresse_no', 'adresse_rue', 'adresse_ville',
                       'adresse_prov', 'adresse_pays', 'adresse_cp']
             csv_dict_writer = csv.DictWriter(csv_file, fieldnames=champs)
             csv_dict_writer.writeheader()
-            csv_dict_writer.writerow(utilisateur_json)
+            csv_dict_writer.writerow({'email': utilisateur_json['email'], 'mdp': utilisateur_json['mdp'],
+                                 'nom': utilisateur_json['nom'], 'prenom': utilisateur_json['prenom'],
+                                 'type': utilisateur_json['type'],'adresse_no': utilisateur_json['adresse_no'],
+                                      'adresse_rue': utilisateur_json['adresse_rue'],
+                                 'adresse_ville': utilisateur_json['adresse_ville'],
+                                      'adresse_prov': utilisateur_json['adresse_prov'],
+                                 'adresse_pays': utilisateur_json['adresse_pays'],
+                                      'adresse_cp': utilisateur_json['adresse_cp']})
 
 
 # Classe permettant d'instancier les chalets qui seront envoyés vers le serveur avec un constructeur
