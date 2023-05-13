@@ -75,7 +75,7 @@ class ClientServeurChalet:
 #cette classe permet d'effectuer les tests unitaires sur tout ce qui touche /reservation/
 #class TestReservation(ut.TestCase):
 
- #   def test_retourne_reservation(self):
+#    def test_retourne_reservation(self):
 
 
 #if __name__ == '__main__':

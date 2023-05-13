@@ -1,5 +1,7 @@
 import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import os
+import gzip
 
 #classe permettant de programmer les get, post, put et delete de la classe ci-dessous
 class SuperChalet:
@@ -25,9 +27,18 @@ class SuperChalet:
     @property
     def reservations(self):
         return self.__reservations
+# Méthode pour obtenir les informations d'une réservation
+    def infos_reservation(self, id):
 
+        file = f'./voute/{id}.res.gz'
+        if os.path.exists(file):
+            with gzip.open(file, 'wb') as res:
+                inforeservations = self.__reservations
+                res.write(inforeservations)
 #méthode remplaçant la réservation
     def remplacer_reservation(self, nouvelle_reservation, ancienne_reservation):
+        if nouvelle_reservation == ancienne_reservation:
+            raise ValueError("Réservation identique déjà en place")
         for reservations, liste_de_reservations in self.__reservations.items():
             if ancienne_reservation in liste_de_reservations:
                 index = liste_de_reservations.index(ancienne_reservation)
@@ -36,8 +47,6 @@ class SuperChalet:
         else:
             raise ValueError("On ne peut remplacer la réservation, car elle n'existe pas")
 
-        if nouvelle_reservation == ancienne_reservation:
-            raise ValueError("Réservation identique déjà en place")
 
 #méthode pour ajouter un utilisateur
     def ajout_utilisateur(self, utilisateur):
@@ -67,7 +76,7 @@ class SuperChalet:
             del(self.__reservation[reservationid])
 #méthode pour retourner un utilisateur
     def retourner_reservation(self,reservationid):
-        for liste_de_reservations in self.__reservations.items():
+        for reservation, liste_de_reservations in self.__reservations.items():
             if reservationid in liste_de_reservations:
                 return liste_de_reservations[0]
         raise ValueError("cette id de réservation n'existe pas")
@@ -85,6 +94,16 @@ class SuperChalet:
 
 #méthode pour retourner les reservations triées
     def retourner_reservations(self):
+        for i in range(1,len(self.__reservations)):
+            courant = self.__reservations[i]
+            p = i
+            while p > 0 and self.__reservations[p-1] > courant:
+                self.__reservations[p] = self.__reservations[ p - 1]
+                p = p-1
+            self.__reservations[p] = courant
+            return self.__reservations
+
+
 #permet de faire fonctionner get,post,put et delete dans le client
 class TPBaseHTTPRequestHandler(BaseHTTPRequestHandler):
 
@@ -146,26 +165,53 @@ class TPBaseHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.end_headers()
             self.wfile.write(bytes(content, 'utf-8'))
+#get la reservation
         elif path.startswith('/reservation/'):
             reservation = path.split('/')[2]
             content = 'reservation: ' + reservation + ' -> ' + str(self.super_chalet.reservation[reservation])
             self.send_response(200)
             self.end_headers()
             self.wfile.write(bytes(content, 'utf-8'))
+#get les infos de l'utilisateur
         elif path.startswith('/reservations/'):
             reservations = path.split('/')[2]
             content = 'email: ' + reservations + ' -> ' + str(self.super_chalet.reservations[reservations])
             self.send_response(200)
             self.end_headers()
             self.wfile.write(bytes(content, 'utf-8'))
+#get la liste de reservations triée
         elif path.startswith('/reservations'):
-
+            self.super_chalet.retourner_reservations()
         else:
             self.send_response(542, 'contenu de votre requête non trouvé')
             self.end_headers()
-#get la reservation
-
-
+#permettre l'utilisation de put
+    def do_PUT(self):
+        path = self.path
+        if path.startswith('/reservation/'):
+            try:
+                os.makedirs(os.path.dirname(path))
+            except ValueError:
+                self.send_response(542, 'reservation inexistante')
+            length = int(self.headers['Content-Length'])
+            with open(path, 'wb') as f:
+                f.write(self.rfile.read(length))
+            self.send_response(200)
+#permettre l'utilisation de delete
+    def do_DELETE(self):
+        headers = self.headers
+        path = self.path
+        print(path)
+        if path == '/reservation':
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+            json_str = json.loads(body)
+            try:
+                self.super_chalet.supprimer_reservation(json_str['reservation'])
+                self.send_response(200)
+            except ValueError:
+                self.send_response(542, 'reservation inexistante')
+            self.end_headers()
 class ServeurTest:
     @staticmethod
     def run(serveur_class=HTTPServer, serveur_port=8000, handler_class=TPBaseHTTPRequestHandler):
