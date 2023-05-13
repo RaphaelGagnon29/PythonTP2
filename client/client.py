@@ -72,14 +72,36 @@ class ClientServeurChalet:
         print(req.status_code)
         print(req.content)
 
-#cette classe permet d'effectuer les tests unitaires sur tout ce qui touche /reservation/
-#class TestReservation(ut.TestCase):
+#cette classe permet d'effectuer les tests unitaires
+class Test(ut.TestCase):
+#tests unitaires split à la méthode des notes de cours
+#test unitaire sur le retour de la reservation
+    def test_retourne_reservation(self,req):
+        s = req
+        self.assertEqual(s.split(), req, 'reservation')
 
-#    def test_retourne_reservation(self):
+        with self.assertRaises(TypeError):
+            s.split(2)
+#test unitaire sur le retour de l'utilisateur
+    def test_retourne_utilisateur(self,req):
+        s = req
+        self.assertEqual(s.split(), req, 'utilisateur')
+
+        with self.assertRaises(TypeError):
+            s.split(2)
+#test unitaire sur le retour des informations d'un chalet
+    def test_ajout_chalet(self,req):
+        s = req
+        self.assertEqual(s.split(), req, 'chaletid')
+
+        with self.assertRaises(TypeError):
+            s.split(2)
 
 
-#if __name__ == '__main__':
-#   ut.main()
+
+
+if __name__ == '__main__':
+   ut.main()
 session = requests.Session()
 session.trust_env = False
 session.get('http://localhost:8000')

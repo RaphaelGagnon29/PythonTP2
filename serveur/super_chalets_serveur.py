@@ -187,16 +187,21 @@ class TPBaseHTTPRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
 #permettre l'utilisation de put
     def do_PUT(self):
+        headers = self.headers
         path = self.path
+        print(path)
         if path.startswith('/reservation/'):
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+            json_str = json.loads(body)
             try:
                 os.makedirs(os.path.dirname(path))
             except ValueError:
                 self.send_response(542, 'reservation inexistante')
-            length = int(self.headers['Content-Length'])
             with open(path, 'wb') as f:
-                f.write(self.rfile.read(length))
+                f.write(self.rfile.read(json_str['reservation']))
             self.send_response(200)
+
 #permettre l'utilisation de delete
     def do_DELETE(self):
         headers = self.headers
