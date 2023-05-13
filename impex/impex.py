@@ -61,12 +61,12 @@ class Utilisateur:
             csv_dict_writer = csv.DictWriter(csv_file, fieldnames=champs)
             csv_dict_writer.writeheader()
             csv_dict_writer.writerow({'email': utilisateur_json['email'], 'mdp': utilisateur_json['mdp'],
-                                 'nom': utilisateur_json['nom'], 'prenom': utilisateur_json['prenom'],
-                                 'type': utilisateur_json['type'],'adresse_no': utilisateur_json['adresse_no'],
+                                      'nom': utilisateur_json['nom'], 'prenom': utilisateur_json['prenom'],
+                                      'type': utilisateur_json['type'], 'adresse_no': utilisateur_json['adresse_no'],
                                       'adresse_rue': utilisateur_json['adresse_rue'],
-                                 'adresse_ville': utilisateur_json['adresse_ville'],
+                                      'adresse_ville': utilisateur_json['adresse_ville'],
                                       'adresse_prov': utilisateur_json['adresse_prov'],
-                                 'adresse_pays': utilisateur_json['adresse_pays'],
+                                      'adresse_pays': utilisateur_json['adresse_pays'],
                                       'adresse_cp': utilisateur_json['adresse_cp']})
 
 
@@ -85,7 +85,7 @@ class Chalet:
     def csv_en_json(self):
         return json.dumps({"chalet": {"id": self.__id, "nom": self.__nom, "url_image": self.__url_image,
                                       "geolocalisation": {"latitude": self.__geo_lat,
-                                                           "longitude": self.__geo_long}}})
+                                                          "longitude": self.__geo_long}}})
 
     # Méthode qui permet de lire le fichier chalets.csv, puis, pour chaque ligne sauf la première,
     # un objet Chalet est créé et est passé dans la méthode csv_en_json. Ensuite, tous ces objets se
